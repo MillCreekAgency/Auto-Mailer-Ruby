@@ -1,4 +1,5 @@
-require 'pony'
+require 'highline/import' #Used to get password
+require 'pony' #Used to send mail
 
 class Mailer
   def sendMail(name, company, policyNum, fname, effectiveDate, expireDate)
@@ -87,8 +88,7 @@ class Mailer
     if !(sendTo == "n")
       puts "Does #{name} and #{policyNum.chomp} seem correct?"
       puts " "
-      puts "Enter your email password to continue"
-      pass = gets.chomp
+      pass = ask("Password: ") { |q| q.echo="*"}
       puts ""
       type == "Renewal" ? subject = "Insurance Renewal" : subject = "Insurance Policy"
       Pony.mail({
