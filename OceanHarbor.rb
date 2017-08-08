@@ -47,6 +47,9 @@ class OceanHarbor
     # Find effective and experation dates
     dates = file[file.index("FROM TO")+9..file.index("\n",file.index("FROM TO")+10)]
     dates = dates.split(" ")
+    puts ""
+    puts "Insured Name: " + @name.chomp
+    puts ""
     @effectiveDate = dates[0]
     @expireDate = dates[1]
     puts "\n Do you wish to email insured or send a letter? (e for email / l for letter)"
