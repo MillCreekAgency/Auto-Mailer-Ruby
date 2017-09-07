@@ -1,9 +1,9 @@
 
 def printLetter nameOH, addressOH, policyNum
-  system('cp Renewal.rtf RenewalLetter.rtf')
+  policyNum = policyNum.chomp
+  system("cp Renewal.rtf #{policyNum}.rtf")
   # load the file as a string
   data = File.read("Renewal.rtf")
-  # globally substitute "install" for "latest"
   names = nameOH.split(" ")
   addresses = addressOH.split(" ", 2)
   number = addresses[0]
@@ -36,8 +36,8 @@ def printLetter nameOH, addressOH, policyNum
   data = data.gsub("ZIP", street[1].rpartition(' ').last)
   data = data.gsub("NUMBER_OF_POLICY", policyNum[policyNum.index("H")+1..-1])
   # open the file for writing
-  File.open("RenewalLetter.rtf", "w") do |f|
+  File.open("#{policyNum}.rtf", "w") do |f|
     f.write(data)
   end
-  system('mv RenewalLetter.rtf /Users/brycethuilot/Work/letters-to-send/')
+  system("mv #{policyNum}.rtf /Users/brycethuilot/Work/send-out/")
 end

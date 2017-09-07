@@ -2,7 +2,7 @@ require 'highline/import' #Used to get password
 require 'pony' #Used to send mail
 
 class Mailer
-  def sendMail(name, company, policyNum, fname, effectiveDate, expireDate)
+  def sendMail(name, company, policyNum, fname, effectiveDate, expireDate, pass)
     if( policyNum.strip.chomp[-2..-1] != "00")
       html_body = %Q(
       <span style='font-family: "Times New Roman", Times, serif'>
@@ -86,31 +86,33 @@ class Mailer
     sendTo = gets.chomp
     puts ""
     if !(sendTo == "n")
-      puts "Does #{name} and #{policyNum.chomp} seem correct?"
-      puts " "
-      pass = ask("Password: ") { |q| q.echo="*"}
-      puts ""
-      type == "Renewal" ? subject = "Insurance Renewal" : subject = "Insurance Policy"
-      Pony.mail({
-        :to => sendTo,
-        :from => 'Bryce Thuilot <bryce@millcreekagency.com>',
-        :html_body => html_body,
-        :subject => subject,
-        :attachments => { "#{policyNum}.pdf" => File.read(fname) },
-        :via => :smtp,
-        :via_options => {
-          :address        => 'smtp.office365.com',
-          :port           => '587',
-          :enable_starttls_auto => true,
-          :user_name      => 'bryce@millcreekagency.com',
-          :password       => pass,
-          :authentication => :login,
-          # :domain         => "localhost.localdomain" # Not important
-        }
-      })
-      puts "Email succesfully sent"
-      open('sentMail.log', 'a') do |f|
-        f.puts "#{Time.now.inspect}: Mail sent to #{sendTo.chomp}, #{name.chomp}, #{policyNum.chomp}, #{type} \n"
+      sendEmail = ask("Does #{name} and #{policyNum.chomp} seem correct? (y/n)")
+      if sendEmail == "y"
+        puts " "
+        type == "Renewal" ? subject = "Insurance Renewal" : subject = "Insurance Policy"
+        Pony.mail({
+          :to => sendTo,
+          :from => 'Bryce Thuilot <bryce@millcreekagency.com>',
+          :html_body => html_body,
+          :subject => subject,
+          :attachments => { "#{policyNum}.pdf" => File.read(fname) },
+          :via => :smtp,
+          :via_options => {
+            :address        => 'smtp.office365.com',
+            :port           => '587',
+            :enable_starttls_auto => true,
+            :user_name      => 'bryce@millcreekagency.com',
+            :password       => pass,
+            :authentication => :login,
+            # :domain         => "localhost.localdomain" # Not important
+          }
+        })
+        puts "Email succesfully sent"
+        open('sentMail.log', 'a') do |f|
+          f.puts "#{Time.now.inspect}: Mail sent to #{sendTo.chomp}, #{name.chomp}, #{policyNum.chomp}, #{type} \n"
+        end
+      else
+        puts 'Not sending'
       end
     end
   end

@@ -18,7 +18,7 @@ Currently the script can extract the insured's
 
 To use the script type in
 ```bash
-ruby mill.rb
+ruby Insurance-Mailer.rb
 ```
 Then when it asks for file name type your path to file
 ```bash
@@ -35,6 +35,7 @@ after the email was sent (or in some cases skipped) it will print the rest of th
 *To be added*
 - If location of insured house is different from mailing address
 - GUI?
+- Dwelling coverage for OceanHarbor
 - support for other policies
   - Narraganset Bay
   - Kensington

@@ -13,6 +13,7 @@ if type_of_policy.downcase == "oh" || type_of_policy.downcase == "ocean harbor"
   @oh = OceanHarbor.new
   @oh.getInfoFromPolicy fname
   @oh.printInfo
+  system("mv #{fname} /Users/brycethuilot/Work/send-out/")
   #It's not time yet
   #updateInQQ
 #elsif type_of_policy == "nb" || type_of_policy == "Narraganset Bay"

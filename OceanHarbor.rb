@@ -1,6 +1,7 @@
 require 'yomu' #Used for getting text
 require_relative 'sendRenewal.rb'
 require_relative 'PrintLetter.rb'
+require_relative 'sendLetterToPrint.rb'
 
 class OceanHarbor
   attr_accessor :name, :address, :policyNum, :coverageA, :coverageB, :coverageC, :coverageD, :coverageE, :coverageF, :deductable, :premium, :hurriDed, :effectiveDate, :expireDate, :searchTerm, :mortgagee
@@ -55,10 +56,26 @@ class OceanHarbor
     puts "\n Do you wish to email insured or send a letter? (e for email / l for letter)"
     response = gets.chomp
     if response == "e"
+      puts " "
+      pass = ask("Password: ") { |q| q.echo="*"}
       mail = Mailer.new
-      mail.sendMail(@name, "Ocean Harbor Casualty", @policyNum, fname, @effectiveDate, @expireDate)
+      mail.sendMail(@name, "Ocean Harbor Casualty", @policyNum, fname, @effectiveDate, @expireDate, pass)
+      brit = ask("Send to Mill Creek to mail? (y/n)")
+      if brit == "y"
+        sendLetterToMortgage @policyNum, fname, pass
+      else
+        puts "not sending"
+      end
     elsif response == "l"
       printLetter @name, @address, @policyNum
+      puts " "
+      pass = ask("Password: ") { |q| q.echo="*"}
+      brit = ask("Send to Mill Creek to mail? (y/n)")
+      if brit == "y"
+        sendLetterToInsured @policyNum, fname, pass
+      else
+        puts "not sending"
+      end
     end
   end
   def printInfo
