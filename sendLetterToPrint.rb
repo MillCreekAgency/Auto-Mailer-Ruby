@@ -4,7 +4,7 @@ def sendLetterToInsured policyNum, fname, pass
     :from => 'Bryce Thuilot <bryce@millcreekagency.com>',
     :html_body => "Could you please mail this letter and pages 2 - 4 of this policy to the insured. If there is a mortgage please mail pages 3 & 4 to them. Thank you",
     :subject => "Letter to mail",
-    :attachments => { "#{policyNum}.pdf" => File.read(fname), "#{policyNum.chomp}.rtf" => File.read("/Users/brycethuilot/Work/send-out/#{policyNum.chomp}.rtf") },
+    :attachments => { "#{policyNum}.pdf" => File.read(fname), "#{policyNum.chomp}.rtf" => File.read("/Users/brycethuilot/not-work/send-out/#{policyNum.chomp}.rtf") },
     :via => :smtp,
     :via_options => {
       :address        => 'smtp.office365.com',
