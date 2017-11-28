@@ -39,5 +39,5 @@ def printLetter nameOH, addressOH, policyNum
   File.open("#{policyNum}.rtf", "w") do |f|
     f.write(data)
   end
-  system("mv #{policyNum}.rtf /Users/brycethuilot/not-work/send-out/")
+  system("mv #{policyNum}.rtf /Users/brycethuilot/Work/send-out/")
 end
