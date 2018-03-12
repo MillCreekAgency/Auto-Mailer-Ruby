@@ -1,4 +1,3 @@
-require_relative 'OceanHarbor.rb'
 require 'selenium-webdriver'
 
 users = File.read("usersAndPasswords.txt")
