@@ -58,13 +58,13 @@ def get_info_from_policy(filename)
   ## Coverages (A, B, C, D, Personal Liability, Medical Payments)
   coverage_a = cut_section(policy_info, 'Building ', 11)
   coverage_b = cut_section(policy_info, 'Other Structure ', 10)
-  coverage_c = cut_section(policy_info, 'Personal Property ', 10)
+  coverage_c = cut_section(policy_info, 'Personal Property ', 11)
   coverage_d = cut_section(policy_info, 'Loss of Use ', 11)
   coverage_e = cut_section(policy_info, 'Personal Liability ', 8)
   coverage_f = cut_section(policy_info,'Medical Payments to Others ', 7).chomp
 
   ## Deductible
-  deductible = cut_section(policy_info, "otherwise\n\n", 5)
+  deductible = cut_section(policy_info, "otherwise\n\n", 6)
 
   ## Premium
   premium = cut_section(policy_info, 'Total Policy Premium: ', 8)
@@ -193,12 +193,12 @@ def mail(to_address, subject, body, attachment_hash)
       via:  :smtp,
       via_options:  {
           address:         'smtp.office365.com',
-          port:            '587',
+          port:		   '587',
           enable_starttls_auto:  true,
           user_name:       'bryce@millcreekagency.com',
           password:        pass,
-          authentication:  :login,
-          domain:          'localhost.localdomain' # Not important
+          authentication:  :login
+          #domain:          'localhost.localdomain' # Not important
       }
   )
   # Log mail sent
@@ -218,7 +218,7 @@ def send_to_mill_creek(filename, letter, letter_filename)
   else
     html_body = 'Can you send this to the mortgagee if there is one'
   end
-  mail 'bryce@millcreekagency.com', 'Policy', html_body, file_hash
+  mail 'brittany@millcreekagency.com', 'Policy', html_body, file_hash
 end
 
 # print_info: Hash {String, String, String,
