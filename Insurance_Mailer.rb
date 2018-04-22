@@ -181,31 +181,43 @@ end
 # mail: String, String, String, Hash { String => File} -> Void
 # Sends mail to a given email with a given subject, body, attachment and location of attachment
 def mail(to_address, subject, body, attachment_hash)
-  print 'Enter password to email: '
-  pass = STDIN.noecho(&:gets).chomp
-  puts "\nSending email..."
-  Pony.mail(
-      to:  to_address,
-      from:  'Bryce Thuilot <bryce@millcreekagency.com>',
-      html_body:  body,
-      subject:  subject,
-      attachments: attachment_hash,
-      via:  :smtp,
-      via_options:  {
-          address:         'smtp.office365.com',
-          port:		   '587',
-          enable_starttls_auto:  true,
-          user_name:       'bryce@millcreekagency.com',
-          password:        pass,
-          authentication:  :login
-          #domain:          'localhost.localdomain' # Not important
-      }
-  )
-  # Log mail sent
-  open('sentMail.log', 'a') do |f|
-    f.puts "#{Time.now.inspect}: Mail sent to #{to_address.chomp}, with subject #{subject.chomp} \n"
+  sent = false
+  while !sent
+	  print 'Enter password to email: '
+	  pass = STDIN.noecho(&:gets).chomp
+	  puts "\nSending email..."
+	  begin
+	  Pony.mail(
+	      to:  to_address,
+	      from:  'Bryce Thuilot <bryce@millcreekagency.com>',
+	      html_body:  body,
+	      subject:  subject,
+	      attachments: attachment_hash,
+	      via:  :smtp,
+	      via_options:  {
+		  address:         'smtp.office365.com',
+		  port:		   '587',
+		  enable_starttls_auto:  true,
+		  user_name:       'bryce@millcreekagency.com',
+		  password:        pass,
+		  authentication:  :login
+		  #domain:          'localhost.localdomain' # Not important
+	      }
+	  )
+	  rescue Net::SMTPAuthenticationError
+		  puts 'the password you entered is wrong, want to try again [Y/n]'
+		  if gets.chomp[0] == 'n'
+			  sent = true
+		  end
+	  else
+	  # Log mail sent
+	  open('sentMail.log', 'a') do |f|
+	    f.puts "#{Time.now.inspect}: Mail sent to #{to_address.chomp}, with subject #{subject.chomp} \n"
+	  end
+	  sent = true
+	  puts 'Email successfully sent!'
+	  end
   end
-  puts 'Email successfully sent!'
 end
 
 # send_to_mill_creek: String, boolean -> Void
