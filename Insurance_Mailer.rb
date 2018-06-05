@@ -118,7 +118,7 @@ def format_body(name, policy_num, dates, renewal)
        <p></p>
       <p>Kindly review enclosed documents for accuracy. Please feel free to call us at (631)751-4653 any time Monday through Friday between 9 a.m.and 5 p.m. We can take care of everything by telephone, or schedule an appointment to meet at your convenience.</p>
        <p></p>
-      <p>I hope we've done everything possible to earn your future insurance business. I look forward to speaking with you soon, and would like say thank you again for choosing The Mill Creek Agency, Inc. </p>
+      <p>I hope we've done everything possible to earn your future insurance business. I look forward to speaking with you soon and would like to say thank you again for choosing The Mill Creek Agency, Inc. </p>
        <p></p>
       <p>If you have any further questions please contact Info@millcreekagency.com. Please do not reply to this email.</p>"
   else
