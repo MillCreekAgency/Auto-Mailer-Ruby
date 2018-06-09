@@ -1,5 +1,4 @@
-Extras/
-usersAndPasswords.txt
+test/
 .DS_Store
 sentMail.log
 .idea
