@@ -53,15 +53,22 @@ def get_info_from_policy(filename)
   policy_num = file[file.index('POLICY NUMBER') - 13..file.index('POLICY NUMBER') - 1]
 
   # Get all policy info
-  policy_info = file[file.index('Name Insured:')..file.index('HO Dec Page')]
+  policy_info = file[file.index('Name Insured:')..file.index('Additional Interest:')]
+
 
   ## Coverages (A, B, C, D, Personal Liability, Medical Payments)
-  coverage_a = cut_section(policy_info, 'Building ', 11)
-  coverage_b = cut_section(policy_info, 'Other Structure ', 10)
-  coverage_c = cut_section(policy_info, 'Personal Property ', 11)
-  coverage_d = cut_section(policy_info, 'Loss of Use ', 11)
-  coverage_e = cut_section(policy_info, 'Personal Liability ', 8)
-  coverage_f = cut_section(policy_info,'Medical Payments to Others ', 7).chomp
+  if policy_num[2] == 'H'
+      coverages = get_ho_coverages(policy_info)
+  else
+      coverages = get_dwelling_coverages(policy_info)
+  end
+
+  #coverage_a = cut_section(policy_info, 'Building ', 11)
+  #coverage_b = cut_section(policy_info, 'Other Structure ', 10)
+  #coverage_c = cut_section(policy_info, 'Personal Property ', 11)
+  #coverage_d = cut_section(policy_info, 'Loss of Use ', 11)
+  #coverage_e = cut_section(policy_info, 'Personal Liability ', 8)
+  #coverage_f = cut_section(policy_info,'Medical Payments to Others ', 7).chomp
 
   ## Deductible
   deductible = cut_section(policy_info, "otherwise\n\n", 6)
@@ -88,8 +95,7 @@ def get_info_from_policy(filename)
       name: name_and_address_arr[0].to_s,
       address: name_and_address_arr[1].to_s,
       policy_num: policy_num,
-      coverages: [coverage_a, coverage_b, coverage_c, coverage_d, coverage_e,
-                   coverage_f],
+      coverages: coverages,
       deductible: deductible,
       premium: premium,
       hurricane_ded: hurricane_ded,
@@ -106,6 +112,42 @@ def cut_section(str, index, length)
     return nil
   end
   str[starting_index + index.length...starting_index + index.length + length]
+end
+
+# Cuts a string from index of from and to the index of to
+# cut_to_from: String, String, String
+def cut_to_from(str, from, to)
+    from_index = str.index from
+    to_index = str.index to, from_index
+    str[from_index + from.length..to_index]
+end
+
+# get_ho_coverages: String -> [List-of String]
+# Gets the coverages of homeowners
+def get_ho_coverages(policy_info)
+  coverage_a = cut_section(policy_info, 'Building ', 11)
+  coverage_b = cut_section(policy_info, 'Other Structure ', 10)
+  coverage_c = cut_section(policy_info, 'Personal Property ', 11)
+  coverage_d = cut_section(policy_info, 'Loss of Use ', 11)
+  coverage_e = cut_section(policy_info, 'Personal Liability ', 8)
+  coverage_f = cut_section(policy_info,'Medical Payments to Others ', 7).chomp
+  return [coverage_a, coverage_b, coverage_c, coverage_d, coverage_e, coverage_f]
+end
+
+# Gets the coverages of a Dwelling Policy
+# get_dwelling_coverages: String -> [List-of String]
+# TODO finish this
+def get_dwelling_coverages(policy_info)
+  dwelling = cut_section(policy_info, "Dwelling ", 12).chomp
+  other_structure = cut_section(policy_info, "Other Structure ", 11).chomp
+  personal_property = cut_to_from(policy_info, "Personal Property", "  ")
+  fair_rental_value = cut_to_from(policy_info, "Fair Rental Value","\n")
+  additional_living_expense = cut_to_from(policy_info, "Additional Living Expense", "\n").chomp
+  personal_liability = cut_to_from(policy_info, "Personal Liability", "\n").chomp
+  medical_payments = cut_to_from(policy_info, "Medical Payments to Others ", "\n").chomp
+  personal_injury = cut_to_from(policy_info, "Personal Injury", "\n").chomp
+  
+  return [dwelling, other_structure, personal_property, fair_rental_value, additional_living_expense, personal_liability, medical_payments, personal_injury]
 end
 
 # format_body: String, String, [List-of String], boolean -> String
