@@ -1,9 +1,10 @@
 require 'selenium-webdriver'
 
 # Used for testing
-policy_num = "CCH016155-04"
+policy_num = "CCH016155-05"
 name = "Mary Mill" 
 premium = "666"
+coverages = [1,2,3,4,5,6,7,8]
 
 #Opens up QQ
 driver = Selenium::WebDriver.for :chrome
@@ -100,14 +101,19 @@ sleep(2)
 
 driver.find_element(id: "pb-PolicyInfo").click
 
-driver.find_element(name: "PolicyNo").send_keys policy_num
+sleep(2) 
+
+driver.find_element(name: "PolicyNo").send_keys "TEST"
+
 
 driver.find_element(id: "pb-PolicyQuotes").click
+
+sleep(3)
 
 quote_info = driver.find_elements(class: "quotecarrier")
 
 quote_info.each do |quote|
-    if quote.element(:title) == "Ocean Harbor Casualty"
+    if quote.property(:title) == "Ocean Harbor Casualty" and quote.displayed?
         quote.click
     end
 end
@@ -121,11 +127,11 @@ quote_info.each do |quote|
     end
 end
 
-sleep(2)
+sleep(6)
 
-driver.find_element(:name "basePremium").send_keys premium 
+driver.find_element(name: "basePremium").send_keys premium 
 
-driver.find_element(:name "QuoteSubStatus").find_element(:css,"option[value='S']").click
+driver.find_element(name: "QuoteSubStatus").find_element(:css,"option[value='S']").click
 
 
 submit_yes = driver.find_elements(class: "section_save")
@@ -143,14 +149,57 @@ sleep(2)
 
 driver.find_element(id: "pb-HomeLiabilityLimitsHOME").click
 
-submit_yes = driver.find_elements(class: "tabular-cell")
+sleep(3)
+
+submit_yes = driver.find_elements(name: "CovLimDed")
+
+i = 0
+submit_yes.each do |submit_button|
+    submit_button.send_keys coverages[i]
+    i += 1
+end
+
+finish_button = driver.find_elements(class: "finish")
+
+finish_button.each do |button| 
+    if button.attribute("innerHTML") == "Finish"
+        button.click
+    end
+end
+
+sleep(3)
+
+driver.find_element(name: "PremiumSent").find_element(css: "option[value='G']").click
+
+
+finish_button = driver.find_elements(class: "finish")
+
+finish_button.each do |button| 
+    if button.attribute("innerHTML") == "Finish"
+        button.click
+    end
+end
+
+sleep(3)
+
+submit_yes = driver.find_elements(class: "btnYes")
 
 
 submit_yes.each do |submit_button|
-    if submit_button.attribute("innerHTML") == "1" and submit_button.displayed?
+    if submit_button.attribute("innerHTML").include? "Yes" and submit_button.displayed?
         submit_button.click
         break
     end
 end
 
+sleep(5)
 
+return_to_policy = driver.find_elements(class: "returntoentity")
+
+return_to_policy.each do |button|
+    if button.attribute("innerHTML") == "Return to policy" and button.displayed?
+        button.click
+    end
+end
+
+sleep(10)
