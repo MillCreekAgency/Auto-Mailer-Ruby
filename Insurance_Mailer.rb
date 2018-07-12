@@ -2,6 +2,7 @@
 require 'yomu'
 require 'pony'
 require 'io/console'
+require_relative 'QQDriver.rb'
 
 # Copyright Bryce Thuilot 2018
 
@@ -52,7 +53,7 @@ def get_info_from_policy(filename)
   name_and_address_arr = name_and_address.split("\n", 2)
 
   # Get the policy number
-  policy_num = file[file.index('POLICY NUMBER') - 13..file.index('POLICY NUMBER') - 1]
+  policy_num = file[file.index('POLICY NUMBER') - 13..file.index('POLICY NUMBER') - 1].strip
 
   # Get all policy info
   policy_info = file[file.index('Name Insured:')..file.index('Additional Interest:')]
@@ -299,6 +300,13 @@ def print_info(user_info)
   Hurrican Deductible #{user_info[:hurricane_ded]}
   Effective Date #{user_info[:dates][0]}
   Expiration Date #{user_info[:dates][1]}"
+
+  qq = WebDriver.new
+  qq.update_int_qq user_info[:name], user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
+end
+
+def get_previous_num policy_num
+  return policy_num[0..-2] + (policy_num[-1].to_i - 1).to_s
 end
 
 
