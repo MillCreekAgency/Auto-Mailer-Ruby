@@ -5,6 +5,8 @@ require 'io/console'
 
 # Copyright Bryce Thuilot 2018
 
+WORK_FOLDER="/Users/bryce/policies"
+
 # mail_to_insured: String -> Void
 # Takes a given PDF filename, reads pdf and sends an email to the insured
 def mail_to_insured(filename)
@@ -29,10 +31,10 @@ def mail_to_insured(filename)
   print 'Send to Mill Creek to Mail? [Y/n] '
   send_to_mc = gets.chomp
   if send_to_mc != 'n'
-    send_to_mill_creek filename, send_email == 'n', "/Users/brycethuilot/Work/send-out/#{user_info[:policy_num].to_s}.rtf"
+    send_to_mill_creek filename, send_email == 'n', "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
   end
   print_info user_info
-  system("mv #{filename} /Users/brycethuilot/Work/send-out/")
+  system("mv #{filename} #{WORK_FOLDER}/send-out/")
 end
 
 # get_info_from_policy: String -> Hash {String, String, String,
@@ -215,7 +217,7 @@ def make_letter(name, address, policy_num)
   data = data.gsub('FULL_NAME', name)
   data = data.gsub('ADDRESS', address.gsub("\n", "\\\n"))
   data = data.gsub('NUMBER_OF_POLICY', policy_num)
-  File.open("/Users/brycethuilot/Work/send-out/#{policy_num}.rtf", "w") do |f|
+  File.open("#{WORK_FOLDER}/send-out/#{policy_num}.rtf", "w") do |f|
     f.write(data)
   end
 end
