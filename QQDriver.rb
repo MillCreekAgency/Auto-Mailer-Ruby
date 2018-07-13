@@ -1,10 +1,7 @@
 require 'selenium-webdriver'
 class WebDriver
 
-  def update_int_qq name, new_policy_num, old_policy_num, premium, coverages
-   name=  name.gsub("&", "")
-
-   puts old_policy_num
+  def update_int_qq new_policy_num, old_policy_num, premium, coverages
 
     # Opens up QQ
     driver = Selenium::WebDriver.for :chrome
@@ -12,8 +9,8 @@ class WebDriver
 
     sleep(2)
 
-    puts 'Please enter password:'
-    pass = gets.chomp
+    print 'Please enter password:'
+	pass = STDIN.noecho(&:gets).chomp
 
     if driver.current_url.include? 'login.qqcatalyst.com'
       # Logs in
@@ -33,41 +30,29 @@ class WebDriver
 
     # Searches for name
     search = driver.find_element(id: 'contact-search-text')
-    search.send_keys name
+    search.send_keys old_policy_num
     driver.find_element(id: 'contact-search-go').click
 
     sleep(2)
     links = driver.find_elements(tag_name: 'a')
 
-    sleep(3)
+    sleep(1)
 
-    first_name = name.split(' ')[0]
-    last_name = name.split(' ')[1]
-    last_name == '' if last_name == '&'
     links.each do |link|
-      if ((link.property(:title).include?(first_name) && link.property(:title).include?(last_name))  or link.property(:title).include? (name.split(' ')[-1])) && link.displayed?
+      if (link.attribute('innerHTML').include? old_policy_num) && link.displayed?
         link.click
-        break
-      end
-    end
-
-    sleep(3)
-
-    driver.find_element(id: 'tab-Policies').click
-
-    sleep(3)
-
-    divs = driver.find_elements(tag_name: 'div')
-
-    divs.each do |div|
-      if div.property(:title).include?(old_policy_num) && div.displayed?
-        div.click
         break
       end
     end
 
     sleep(2)
 
+    email = driver.find_elements(class: 'overview-email-link')
+    if email.empty?
+      email = ''
+    else
+      email = email[0].attribute("innerHTML").strip
+    end
     renewal_button = driver.find_elements(class: 'PolicyActionRenew')
 
     until renewal_button[0].displayed?
@@ -126,7 +111,6 @@ class WebDriver
     quote_info.each do |quote|
       if quote.attribute('innerHTML') == 'Edit'
         quote.click
-        puts 'RAN'
       end
     end
 
@@ -171,15 +155,8 @@ class WebDriver
       break if i > coverages.size
     end
 
-    finish_button = driver.find_elements(class: 'finish')
-
-    finish_button.each do |button|
-      button.click if button.attribute('innerHTML') == 'Finish'
-    end
-
     sleep(3)
-
-    finish_button = driver.find_elements(class: 'finish')
+    finish_button = driver.find_elements(class: 'basic-page-fin')
 
     finish_button.each do |button|
       if (button.attribute('innerHTML') == 'Finish') && button.displayed?
@@ -187,10 +164,14 @@ class WebDriver
         break
       end
     end
-
     sleep(3)
 
-    driver.find_element(name: 'PremiumSent').find_element(css: "option[value='G']").click
+    until driver.current_url.include? 'Workflows/IssueMultiPolicy' do
+      sleep(1)
+    end
+    
+    premium = driver.find_element(name: 'PremiumSent')
+    premium.find_element(css: "option[value='G']").click
 
     finish_button = driver.find_elements(class: 'finish')
 
@@ -201,12 +182,12 @@ class WebDriver
         end
     end
 
-    sleep(2)
+    sleep(4)
 
     submit_yes = driver.find_elements(class: 'btnYes')
 
     submit_yes.each do |submit_button|
-      if submit_button.attribute('innerHTML').include?('Yes') && submit_button.displayed?
+      if submit_button.attribute('innerHTML').include?('Yes') && submit_button.displayed? 
         submit_button.click
         break
       end
@@ -217,11 +198,9 @@ class WebDriver
     return_to_policy = driver.find_elements(class: 'returntoentity')[0]
 
     until return_to_policy.displayed? do
-      if (return_to_policy.attribute('innerHTML') == 'Return to policy')
-        retrun_to_policy.click
-      end
+      sleep(1)
     end
-
-    sleep(10)
+    return_to_policy.click
+    return email
   end
 end

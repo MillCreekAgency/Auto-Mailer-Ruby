@@ -7,32 +7,40 @@ require_relative 'QQDriver.rb'
 # Copyright Bryce Thuilot 2018
 
 WORK_FOLDER="/Users/bryce/policies"
-
+REMOTE=false
 # mail_to_insured: String -> Void
 # Takes a given PDF filename, reads pdf and sends an email to the insured
 def mail_to_insured(filename)
   user_info = get_info_from_policy filename
-  print 'Send email to insured? [Y/n] '
-  send_email = gets.chomp
-  if send_email == 'n'
+
+  qq = WebDriver.new
+  email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
+  
+  if email == ''
     print 'Send letter to insured? [Y/n] '
     send_letter = gets.chomp
     if send_letter != 'n'
       make_letter user_info[:name], user_info[:address], user_info[:policy_num]
     end
   else
-    print 'Enter email of insured: '
-    email = gets.chomp
+    print "Does #{email} look correct? [Y/n]:"
+    get_email = gets.chomp
+    if get_email == 'n'
+      print 'Enter email of insured: '
+      email = gets.chomp
+    end
     renewal = user_info[:policy_num].strip.chomp[-2..-1] != '00'
     subject = renewal ? 'Insurance Renewal' : 'Insurance Policy'
     mail email, subject,
          format_body(user_info[:name], user_info[:policy_num],
                      user_info[:dates], renewal), { "#{user_info[:policy_num]}.pdf" => File.read(filename)}
   end
-  print 'Send to Mill Creek to Mail? [Y/n] '
-  send_to_mc = gets.chomp
-  if send_to_mc != 'n'
-    send_to_mill_creek filename, send_email == 'n', "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
+  if REMOTE
+    print 'Send to Mill Creek to Mail? [Y/n] '
+    send_to_mc = gets.chomp
+    if send_to_mc != 'n'
+      send_to_mill_creek filename, send_email == 'n', "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
+    end
   end
   print_info user_info
   system("mv #{filename} #{WORK_FOLDER}/send-out/")
@@ -65,14 +73,6 @@ def get_info_from_policy(filename)
   else
       coverages = get_dwelling_coverages(policy_info)
   end
-
-  #coverage_a = cut_section(policy_info, 'Building ', 11)
-  #coverage_b = cut_section(policy_info, 'Other Structure ', 10)
-  #coverage_c = cut_section(policy_info, 'Personal Property ', 11)
-  #coverage_d = cut_section(policy_info, 'Loss of Use ', 11)
-  #coverage_e = cut_section(policy_info, 'Personal Liability ', 8)
-  #coverage_f = cut_section(policy_info,'Medical Payments to Others ', 7).chomp
-
   ## Deductible
   deductible = cut_section(policy_info, "otherwise\n\n", 6)
 
@@ -301,9 +301,7 @@ def print_info(user_info)
   Effective Date #{user_info[:dates][0]}
   Expiration Date #{user_info[:dates][1]}"
 
-  qq = WebDriver.new
-  qq.update_int_qq user_info[:name], user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
-end
+  end
 
 def get_previous_num policy_num
   return policy_num[0..-2] + (policy_num[-1].to_i - 1).to_s
