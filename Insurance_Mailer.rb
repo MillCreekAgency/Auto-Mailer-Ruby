@@ -8,17 +8,13 @@ require_relative 'QQDriver.rb'
 
 WORK_FOLDER="/Users/bryce/policies"
 REMOTE=false
-# mail_to_insured: String -> Void
+# mail_to_insured: String, boolean -> Void
 # Takes a given PDF filename, reads pdf and sends an email to the insured
 def mail_to_insured(filename)
   user_info = get_info_from_policy filename
 
-  if ARGV.empty?
-    qq = WebDriver.new
-    email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
-  else if ARGV[0] == '-e'
-    email = ARGV[1]
-  end
+  qq = WebDriver.new
+  email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
 
   if email == ''
     print 'Send letter to insured? [Y/n] '
@@ -314,11 +310,11 @@ end
 
 # Main Loop
 # Gets the filename from user if not supplied
-if !ARGV.empty?
-  fname = ARGV[0].strip
-else
+if ARGV.empty? 
   puts 'Enter filename:'
   fname = gets.chomp.strip
+elsif ARGV[0] == "-f" 
+  fname = ARGV[1]
 end
 
-mail_to_insured fname
+mail_to_insured fname 
