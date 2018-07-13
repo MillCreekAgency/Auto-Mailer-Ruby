@@ -13,9 +13,13 @@ REMOTE=false
 def mail_to_insured(filename)
   user_info = get_info_from_policy filename
 
-  qq = WebDriver.new
-  email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
-  
+  if ARGV.empty?
+    qq = WebDriver.new
+    email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
+  else if ARGV[0] == '-e'
+    email = ARGV[1]
+  end
+
   if email == ''
     print 'Send letter to insured? [Y/n] '
     send_letter = gets.chomp
