@@ -11,6 +11,7 @@ class WebDriver
 
     print 'Please enter password:'
 	pass = STDIN.noecho(&:gets).chomp
+    puts ""
 
     if driver.current_url.include? 'login.qqcatalyst.com'
       # Logs in
@@ -169,10 +170,12 @@ class WebDriver
     until driver.current_url.include? 'Workflows/IssueMultiPolicy' do
       sleep(1)
     end
+
+    sleep(2)
     
     premium = driver.find_element(name: 'PremiumSent')
     premium.find_element(css: "option[value='G']").click
-
+      
     finish_button = driver.find_elements(class: 'finish')
 
     finish_button.each do |button|
@@ -182,7 +185,7 @@ class WebDriver
         end
     end
 
-    sleep(4)
+    sleep(2)
 
     submit_yes = driver.find_elements(class: 'btnYes')
 
@@ -194,7 +197,6 @@ class WebDriver
     end
 
     sleep(5)
-
     return_to_policy = driver.find_elements(class: 'returntoentity')[0]
 
     until return_to_policy.displayed? do
