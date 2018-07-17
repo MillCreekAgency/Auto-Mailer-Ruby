@@ -1,13 +1,11 @@
 require 'selenium-webdriver'
 class WebDriver
 
-  def update_int_qq new_policy_num, old_policy_num, premium, coverages
+  def update_int_qq new_policy_num, old_policy_num, premium, coverages, email_only
 
-    # Opens up QQ
+    # Opens up QQ in Chrome
     driver = Selenium::WebDriver.for :chrome
     driver.navigate.to 'https://app.qqcatalyst.com/Contacts/Search'
-
-    sleep(2)
 
     print 'Please enter password:'
 	pass = STDIN.noecho(&:gets).chomp
@@ -21,7 +19,7 @@ class WebDriver
       passField.send_keys pass
       driver.find_element(id: 'lnkSubmit').click
 
-      sleep(2)
+      sleep(1)
 
       if driver.current_url.include? 'login.qqcatalyst.com'
         yes_button = driver.find_element(id: 'lnkCancel')
@@ -29,17 +27,19 @@ class WebDriver
       end
     end
 
-    # Searches for name
-    search = driver.find_element(id: 'contact-search-text')
-    search.send_keys old_policy_num
+    # Searches for policy 
+    search_bar = driver.find_element(id: 'contact-search-text')
+    search_bar.send_keys old_policy_num
     driver.find_element(id: 'contact-search-go').click
-
-    sleep(2)
-    links = driver.find_elements(tag_name: 'a')
 
     sleep(1)
 
-    links.each do |link|
+    # Find the search results
+    search_results = driver.find_elements(tag_name: 'a')
+
+    sleep(1)
+
+    search_results.each do |link|
       if (link.attribute('innerHTML').include? old_policy_num) && link.displayed?
         link.click
         break
@@ -54,6 +54,11 @@ class WebDriver
     else
       email = email[0].attribute("innerHTML").strip
     end
+
+    if email_only
+      return email
+    end
+
     renewal_button = driver.find_elements(class: 'PolicyActionRenew')
 
     until renewal_button[0].displayed?

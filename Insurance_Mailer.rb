@@ -6,21 +6,23 @@ require_relative 'QQDriver.rb'
 
 # Copyright Bryce Thuilot 2018
 
-WORK_FOLDER="/Users/bryce/policies"
+PRINT_FOLDER='/Users/bryce/print'
+WORK_FOLDER='/Users/bryce/policies'
 REMOTE=false
-# mail_to_insured: String, boolean -> Void
+
+# mail_to_insured: String, Boolean, Boolean -> Void
 # Takes a given PDF filename, reads pdf and sends an email to the insured
-def mail_to_insured(filename)
+def mail_to_insured(filename, letter, email_only)
   user_info = get_info_from_policy filename
+    
+  # Get email from WebDriver
+  email = qq_web_driver user_info, email_only
 
-  qq = WebDriver.new
-  email = qq.update_int_qq user_info[:policy_num], get_previous_num(user_info[:policy_num]), user_info[:premium].gsub("$", ""), user_info[:coverages].push(user_info[:deductible].gsub('$', '').gsub(',', '')).push(user_info[:hurricane_ded].gsub('%', ''))
-
-  if email == ''
+  if email == '' or letter
     print 'Send letter to insured? [Y/n] '
     send_letter = gets.chomp
     if send_letter != 'n'
-      make_letter user_info[:name], user_info[:address], user_info[:policy_num]
+      make_letter user_info[:name], user_info[:address], user_info[:policy_num], filename
     end
   else
     print "Does #{email} look correct? [Y/n]:"
@@ -39,11 +41,32 @@ def mail_to_insured(filename)
     print 'Send to Mill Creek to Mail? [Y/n] '
     send_to_mc = gets.chomp
     if send_to_mc != 'n'
-      send_to_mill_creek filename, send_email == 'n', "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
+      send_to_mill_creek filename, email == 'n' or letter, "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
     end
-  end
   print_info user_info
+  system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dFirstPage=3 -dLastPage=4 -sOUTPUTFILE=#{filename}.3_4.pdf #{filename}")
+  system("mv #{filename}.3_4.pdf #{PRINT_FOLDER}")
   system("mv #{filename} #{WORK_FOLDER}/send-out/")
+end
+
+# qq_web_driver: Hash {String, String, String, [List-of String], String, String, String, [List-of String]}, Boolean -> String
+# Updates a policy in QQ and returns the email linked with the customer
+# Does not update if email_only, only returns email 
+def qq_web_driver(user_info, email_only)
+
+  # Current policy number
+  policy_num = user_info[:policy_num]
+  # The previous policy number
+  previous_policy_num = get_previous(user_info[:policy_num])
+  # Policy premium
+  premium = user_info[:premium].tr('$', '')
+  # Coverages
+  coverages = user_info.push(user_info[:deductible]).push(user_info[:hurricane_ded]).map! { |item| item.tr('$,%', '') }
+  
+  # Instatiate the driver
+  driver = WebDriver.new
+  # Update in QQ and return email
+  return driver.update_int_qq policy_num, previous_policy_num, premium, coverages 
 end
 
 # get_info_from_policy: String -> Hash {String, String, String,
@@ -139,7 +162,6 @@ end
 
 # Gets the coverages of a Dwelling Policy
 # get_dwelling_coverages: String -> [List-of String]
-# TODO finish this
 def get_dwelling_coverages(policy_info)
   dwelling = cut_section(policy_info, "Dwelling ", 12).chomp
   other_structure = cut_section(policy_info, "Other Structure ", 11).chomp
@@ -211,7 +233,7 @@ end
 
 # send_letter: String, String, String -> Void
 # Formats the Renewal.rtf to be sent to Mill Creek
-def make_letter(name, address, policy_num)
+def make_letter(name, address, policy_num, filename)
   data = File.read('RenewalLetter.rtf')
   data = data.gsub('DATE', DateTime.now.strftime('%A %B %d, %Y'))
   data = data.gsub('FIRST_NAME', name.split(' ')[0])
@@ -221,6 +243,9 @@ def make_letter(name, address, policy_num)
   File.open("#{WORK_FOLDER}/send-out/#{policy_num}.rtf", "w") do |f|
     f.write(data)
   end
+  system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dFirstPage=2 -dLastPage=4 -sOUTPUTFILE=#{filename}.2_4.pdf #{filename}")
+  system("mv #{filename}.2_4.pdf #{PRINT_FOLDER}")
+  system("cp #{WORK_FOLDER}/send-out/#{policy_num}.rtf #{PRINT_FOLDER}")
 end
 
 # mail: String, String, String, Hash { String => File} -> Void
@@ -308,13 +333,47 @@ def get_previous_num policy_num
 end
 
 
-# Main Loop
-# Gets the filename from user if not supplied
-if ARGV.empty? 
-  puts 'Enter filename:'
-  fname = gets.chomp.strip
-elsif ARGV[0] == "-f" 
-  fname = ARGV[1]
+def print_help
+  print 'Usage:
+
+-f, --file [file]   Supply file from command line
+-l, --letter        Use a letter over an email gotten from QQ
+-e, --email-only    Only get the email from the WebDriver
+-h, --help          Print this menu
+
+'
 end
 
-mail_to_insured fname 
+# Main Loop
+# Checks to see if file is supplied, letter should be used, or only email should be gotten from QQ
+file_supplied = false
+letter = false
+email_only = false
+
+(0..ARGV.length).each do |index|
+
+  arg = ARGV[index] 
+
+  # File is supplied on command line
+  if arg == '-f' or arg == '--file'
+    fname = AGRV[index + 1]
+    file_supplied = true
+  # Letter should be used instead of email
+  elsif arg == '-l' or arg == '--letter'
+    letter = true
+  # Email should be the only thing gotten from QQ
+  elsif arg == '-e' or arg == '--email-only'
+    email_only = true
+  # Prints help menu
+  elsif arg == '-h' or arg == '--help'
+    print_help()
+    exit(0)
+  end
+end
+
+if not file_supplied
+  puts 'Enter filename:'
+  fname = gets.chomp.strip
+end
+
+mail_to_insured fname, letter, email_only
