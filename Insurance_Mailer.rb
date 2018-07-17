@@ -41,8 +41,9 @@ def mail_to_insured(filename, letter, email_only)
     print 'Send to Mill Creek to Mail? [Y/n] '
     send_to_mc = gets.chomp
     if send_to_mc != 'n'
-      send_to_mill_creek filename, email == 'n' or letter, "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
+      send_to_mill_creek filename, (email == 'n' or letter), "#{WORK_FOLDER}/send-out/#{user_info[:policy_num].to_s}.rtf"
     end
+  end
   print_info user_info
   system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dFirstPage=3 -dLastPage=4 -sOUTPUTFILE=#{filename}.3_4.pdf #{filename}")
   system("mv #{filename}.3_4.pdf #{PRINT_FOLDER}")
@@ -319,6 +320,7 @@ def print_info(user_info)
     puts "  #{letter.chr}: #{coverage}"
     letter += 1
   end
+
   puts "
   Premium: #{user_info[:premium]}
   Deductible: #{user_info[:deductible]}
@@ -326,7 +328,7 @@ def print_info(user_info)
   Effective Date #{user_info[:dates][0]}
   Expiration Date #{user_info[:dates][1]}"
 
-  end
+end
 
 def get_previous_num policy_num
   return policy_num[0..-2] + (policy_num[-1].to_i - 1).to_s
