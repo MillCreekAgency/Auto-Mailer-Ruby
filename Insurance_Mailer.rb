@@ -1,4 +1,13 @@
 #!/bin/usr/env ruby
+
+# The program takes in a PDF of an Ocean Harbor Policy and
+# Reads the text from it to find out the Policy number, Insured name,
+# Premium, Effective and experation dates, coverages, deductables, and 
+# Insured address. It then runs a WebDriver to go onto QQ Catalyst and update the policy
+# and find the email of the insured and email it to them. It then sends the 
+# Pages needed to be printed (The pages to be sent to the mortgagee and the pages needed 
+# to be mailed to the insured if no email is hofund 
+#
 require 'yomu'
 require 'pony'
 require 'io/console'
