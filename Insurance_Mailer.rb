@@ -6,9 +6,12 @@ require_relative 'QQDriver.rb'
 
 # Copyright Bryce Thuilot 2018
 
+SENDER_NAME='Bryce Thuilot'
+SENDER_EMAIL='bryce@millcreekagency.com'
+REMOTE_EMAIL='brittany@millcreekagency.com'
+REMOTE=false
 PRINT_FOLDER='/Users/bryce/print'
 WORK_FOLDER='/Users/bryce/policies'
-REMOTE=false
 
 # mail_to_insured: String, Boolean, Boolean -> Void
 # Takes a given PDF filename, reads pdf and sends an email to the insured
@@ -261,7 +264,7 @@ def mail(to_address, subject, body, attachment_hash)
 	  begin
 	  Pony.mail(
 	      to:  to_address,
-	      from:  'Bryce Thuilot <bryce@millcreekagency.com>',
+	      from:  "#{SENDER_NAME} <#{SENDER_EMAIL}>",
 	      html_body:  body,
 	      subject:  subject,
 	      attachments: attachment_hash,
@@ -270,7 +273,7 @@ def mail(to_address, subject, body, attachment_hash)
 		  address:         'smtp.office365.com',
 		  port:		   '587',
 		  enable_starttls_auto:  true,
-		  user_name:       'bryce@millcreekagency.com',
+		  user_name:       "#{SENDER_EMAIL}",
 		  password:        pass,
 		  authentication:  :login
 		  #domain:          'localhost.localdomain' # Not important
@@ -302,7 +305,7 @@ def send_to_mill_creek(filename, letter, letter_filename)
   else
     html_body = 'Can you send this to the mortgagee if there is one'
   end
-  mail 'brittany@millcreekagency.com', 'Policy', html_body, file_hash
+  mail REMOTE_EMAIL, 'Policy', html_body, file_hash
 end
 
 # print_info: Hash {String, String, String,
