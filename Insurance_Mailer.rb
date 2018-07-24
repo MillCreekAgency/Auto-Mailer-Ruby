@@ -58,16 +58,17 @@ def qq_web_driver(user_info, email_only)
   # Current policy number
   policy_num = user_info[:policy_num]
   # The previous policy number
-  previous_policy_num = get_previous(user_info[:policy_num])
+  previous_policy_num = get_previous_num(user_info[:policy_num])
   # Policy premium
   premium = user_info[:premium].tr('$', '')
   # Coverages
-  coverages = user_info.push(user_info[:deductible]).push(user_info[:hurricane_ded]).map! { |item| item.tr('$,%', '') }
+  coverages = user_info[:coverages].clone
+  coverages.push(user_info[:deductible]).push(user_info[:hurricane_ded]).map! { |item| item.tr('$,%', '') }
   
   # Instatiate the driver
   driver = WebDriver.new
   # Update in QQ and return email
-  return driver.update_int_qq policy_num, previous_policy_num, premium, coverages 
+  return driver.update_int_qq policy_num, previous_policy_num, premium, coverages, email_only
 end
 
 # get_info_from_policy: String -> Hash {String, String, String,
@@ -371,6 +372,7 @@ email_only = false
     print_help()
     exit(0)
   end
+  ARGV.clear
 end
 
 if not file_supplied
