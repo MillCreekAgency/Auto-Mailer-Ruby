@@ -6,8 +6,10 @@
 # Insured address. It then runs a WebDriver to go onto QQ Catalyst and update the policy
 # and find the email of the insured and email it to them. It then sends the 
 # Pages needed to be printed (The pages to be sent to the mortgagee and the pages needed 
-# to be mailed to the insured if no email is hofund 
-#
+# to be mailed to the insured if no email is found) 
+
+
+
 require 'yomu'
 require 'pony'
 require 'io/console'
