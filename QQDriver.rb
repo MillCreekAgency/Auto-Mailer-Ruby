@@ -156,7 +156,7 @@ class WebDriver
     buttonsss.each do |btn|
       next unless btn.displayed?
       btn.clear
-      btn.send_keys coverages[i]
+      btn.send_keys (coverages[i][0] == 'N' ? 0 : coverages[i])
       i += 1
       break if i > coverages.size
     end

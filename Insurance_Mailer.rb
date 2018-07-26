@@ -9,7 +9,6 @@
 # to be mailed to the insured if no email is found) 
 
 
-
 require 'yomu'
 require 'pony'
 require 'io/console'
@@ -77,7 +76,7 @@ def qq_web_driver(user_info, email_only)
   premium = user_info[:premium].tr('$', '')
   # Coverages
   coverages = user_info[:coverages].clone
-  coverages.push(user_info[:deductible]).push(user_info[:hurricane_ded]).map! { |item| item.tr('$,%', '') }
+  coverages.push(user_info[:deductible]).push(user_info[:hurricane_ded]).map! { |item| item != nil ? item.tr('$,%', '') : item }
   
   # Instatiate the driver
   driver = WebDriver.new
@@ -346,7 +345,8 @@ def print_info(user_info)
 end
 
 def get_previous_num policy_num
-  return policy_num[0..-2] + (policy_num[-1].to_i - 1).to_s
+  previous_number = policy_num[-2..-1].to_i - 1 
+  return policy_num[0..-3] + (previous_number <= 0 ? "00" : previous_number.to_s.rjust(2, "0"))
 end
 
 
