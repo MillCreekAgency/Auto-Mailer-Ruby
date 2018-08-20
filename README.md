@@ -1,5 +1,8 @@
 # Insurance-Auto-Mailer
 
+# DEPRECATED
+*This has been replaced by the GUI Version written in Java. You can find its repo located [here](https://wwww.github.com/MillCreekAgency/Auto-Mailer-Gui)*
+
 I Currently work at an insurance agency and part of my job is sending out renewals for Ocean Harbor Casualty. This consists of two parts, updating the policy on our online system (QQ Catalyst) and sending out a renewal email to let the insured know that their policy has been renewed
 
 Im lazy and want to have the computer send the mail for me so I created a ruby script which takes in an Ocean Harbor pdf and spits out the information and formats an email to be sent
